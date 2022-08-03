@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"papvan/cvmaker/internal/apperror"
 	"papvan/cvmaker/internal/user"
 	"papvan/cvmaker/pkg/logging"
 )
@@ -54,8 +55,7 @@ func (d *db) FindOne(ctx context.Context, id string) (u user.User, err error) {
 	res := d.collection.FindOne(ctx, filter)
 	if res.Err() != nil {
 		if errors.Is(res.Err(), mongo.ErrNoDocuments) {
-			// TODO: ErrEntityNotFound
-			return u, fmt.Errorf("not found")
+			return u, apperror.ErrNotFound
 		}
 		return u, fmt.Errorf("failed to find one user by id. id: %s due to error: %v", id, err)
 	}
@@ -97,8 +97,7 @@ func (d *db) Update(ctx context.Context, user user.User) error {
 	}
 
 	if result.MatchedCount == 0 {
-		// TODO: ErrEntityNotFound
-		return fmt.Errorf("not found")
+		return apperror.ErrNotFound
 	}
 
 	d.logger.Tracef("Matched %d documents and modified %d documents", result.MatchedCount, result.ModifiedCount)
@@ -120,8 +119,7 @@ func (d *db) Delete(ctx context.Context, id string) error {
 	}
 
 	if res.DeletedCount == 0 {
-		// TODO: ErrEntityNotFound
-		return fmt.Errorf("not found")
+		return apperror.ErrNotFound
 	}
 
 	d.logger.Tracef("Deleted %d documents", res.DeletedCount)

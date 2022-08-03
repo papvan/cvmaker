@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"papvan/cvmaker/internal/config"
 	"papvan/cvmaker/internal/user"
+	"papvan/cvmaker/internal/user/db"
+	"papvan/cvmaker/pkg/client/mongodb"
 	"papvan/cvmaker/pkg/logging"
 	"path"
 	"path/filepath"
@@ -22,6 +25,26 @@ func main() {
 	router := httprouter.New()
 
 	cfg := config.GetConfig()
+
+	cfgMongo := cfg.MongoDB
+	mongoDbClient, err := mongodb.NewClient(context.Background(), cfgMongo.Host, cfgMongo.Port, cfgMongo.Username,
+		cfgMongo.Password, cfgMongo.Database, cfgMongo.AuthDB)
+	if err != nil {
+		panic(err)
+	}
+	storage := db.NewStorage(mongoDbClient, cfg.MongoDB.Collection, logger)
+
+	user1 := user.User{
+		ID:           "",
+		Email:        "example2@gmail.com",
+		Username:     "user2",
+		PasswordHash: "12345",
+	}
+	user1ID, err := storage.Create(context.Background(), user1)
+	if err != nil {
+		panic(err)
+	}
+	logger.Info(user1ID)
 
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)

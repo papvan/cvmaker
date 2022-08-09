@@ -7,3 +7,16 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=1234
+  posgres:
+    image: postgres:12
+    ports: ['5432:5432']
+    environment:
+      - POSTGRES_DB=cvmaker
+      - POSTGRES_USER=papvan
+      - POSTGRES_PASSWORD=1234
+      - PGDATA=/var/lib/postgresql/data/db-files/
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+
+volumes:
+  db-data: {}

@@ -6,11 +6,11 @@ listen:
   bind_ip: 0.0.0.0
   port: 10000
 
-mongodb:
+storage:
   host: localhost
-  port: 27017
-  database: user-service
-  auth_db: admin
-  username: root
+  port: 5432
+  database: cvmaker
+  username: papvan
   password: 1234
-  collection: users
+#  auth_db: admin
+#  collection: users

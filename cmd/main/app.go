@@ -6,10 +6,10 @@ import (
 	"net"
 	"net/http"
 	"os"
+	author "papvan/cvmaker/internal/author/db"
 	"papvan/cvmaker/internal/config"
 	"papvan/cvmaker/internal/user"
-	"papvan/cvmaker/internal/user/db"
-	"papvan/cvmaker/pkg/client/mongodb"
+	"papvan/cvmaker/pkg/client/postgresql"
 	"papvan/cvmaker/pkg/logging"
 	"path"
 	"path/filepath"
@@ -26,25 +26,19 @@ func main() {
 
 	cfg := config.GetConfig()
 
-	cfgMongo := cfg.MongoDB
-	mongoDbClient, err := mongodb.NewClient(context.Background(), cfgMongo.Host, cfgMongo.Port, cfgMongo.Username,
-		cfgMongo.Password, cfgMongo.Database, cfgMongo.AuthDB)
+	postgreSQLClient, err := postgresql.NewClient(context.TODO(), 3, cfg.Storage)
 	if err != nil {
-		panic(err)
+		logger.Fatal(err)
 	}
-	storage := db.NewStorage(mongoDbClient, cfg.MongoDB.Collection, logger)
+	repository := author.NewRepository(postgreSQLClient, logger)
+	all, err := repository.FindAll(context.TODO())
+	if err != nil {
+		logger.Fatal(err)
+	}
 
-	user1 := user.User{
-		ID:           "",
-		Email:        "example2@gmail.com",
-		Username:     "user2",
-		PasswordHash: "12345",
+	for _, ath := range all {
+		logger.Infof("%v", ath)
 	}
-	user1ID, err := storage.Create(context.Background(), user1)
-	if err != nil {
-		panic(err)
-	}
-	logger.Info(user1ID)
 
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)

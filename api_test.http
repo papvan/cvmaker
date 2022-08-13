@@ -1,30 +1,29 @@
-GET http://localhost:10000/users
+### Get Authors list
+
+GET http://localhost:10000/authors
 Content-Type: application/json
 
-> {%
-client.test("Request executed successfully", function() {
-  client.assert(response.status === 200, "Response status is not 200");
-});
-%}
-
-###
-
-GET http://localhost:10000/users/1
+### Get Authors list with filter
+##################################?field=operator:value (lt - lower then, gt - greater then, lower then equal, greater then equal, eq - equal)
+GET http://localhost:10000/authors?age=lt:50
 Content-Type: application/json
 
-> {%
-client.test("Request executed successfully", function() {
-  client.assert(response.status === 200, "Response status is not 200");
-});
-%}
+### Get Authors list with sorting
 
-###
-
-POST http://localhost:10000/users/1
+GET http://localhost:10000/authors?sort_by=age&sort_order=desc
 Content-Type: application/json
 
-> {%
-client.test("Request executed successfully", function() {
-  client.assert(response.status === 200, "Response status is not 200");
-});
-%}
+### Get Authors list with pagination - Page 1
+
+GET http://localhost:10000/authors?limit=5
+Content-Type: application/json
+
+### Get Authors list with pagination - Page 2
+
+GET http://localhost:10000/authors?limit=5&ptoken=?
+Content-Type: application/json
+
+### Get Authors list with filter and sorting
+
+GET http://localhost:10000/authors?age=lt:50&sort_by=age&sort_order=asc
+Content-Type: application/json

@@ -6,9 +6,10 @@ import (
 	"net"
 	"net/http"
 	"os"
-	author "papvan/cvmaker/internal/author/db"
+	"papvan/cvmaker/internal/author"
+	authorDb "papvan/cvmaker/internal/author/db/postgresql"
+	"papvan/cvmaker/internal/author/service"
 	"papvan/cvmaker/internal/config"
-	"papvan/cvmaker/internal/user"
 	"papvan/cvmaker/pkg/client/postgresql"
 	"papvan/cvmaker/pkg/logging"
 	"path"
@@ -30,19 +31,10 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	repository := author.NewRepository(postgreSQLClient, logger)
-	all, err := repository.FindAll(context.TODO())
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	for _, ath := range all {
-		logger.Infof("%v", ath)
-	}
-
-	logger.Info("register user handler")
-	handler := user.NewHandler(logger)
-	handler.Register(router)
+	repository := authorDb.NewRepository(postgreSQLClient, logger)
+	authorService := service.NewService(repository, logger)
+	authorHandler := author.NewHandler(authorService, logger)
+	authorHandler.Register(router)
 
 	start(router, cfg)
 }
